@@ -39,7 +39,7 @@ public class CapitalAccount {
     }
 
     public String getRewards() {
-        return "$" + String.valueOf((double) rewards / 100);
+        return "Reward Points: " + String.valueOf(rewards);
     }
 
     public String getBalance() {

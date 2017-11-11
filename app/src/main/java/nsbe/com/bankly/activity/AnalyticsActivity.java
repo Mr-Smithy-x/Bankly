@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatTextView;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -33,12 +34,10 @@ import java8.util.stream.StreamSupport;
 import nsbe.com.bankly.Bankly;
 import nsbe.com.bankly.BuildConfig;
 import nsbe.com.bankly.R;
-import nsbe.com.bankly.StatementRecyclerAdapter;
 import nsbe.com.bankly.model.CapitalPurchase;
 
 public class AnalyticsActivity extends AppCompatActivity {
 
-    private StatementRecyclerAdapter adapter;
 
     private double total_spent;
 
@@ -46,6 +45,8 @@ public class AnalyticsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analytics);
+        setSupportActionBar(findViewById(R.id.toolbar));
+        getSupportActionBar().setTitle("");
         Bankly.getService().getAccounts(BuildConfig.WILBERT)
                 .subscribeOn(Schedulers.io())
                 .flatMap(res -> Bankly.getService().getPurchases(res.get(0).get_id()))
@@ -58,6 +59,17 @@ public class AnalyticsActivity extends AppCompatActivity {
                             d();
                         });
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     LineChart mChart = null;
 
