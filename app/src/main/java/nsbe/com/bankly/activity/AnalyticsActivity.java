@@ -2,13 +2,12 @@ package nsbe.com.bankly.activity;
 
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.MotionEvent;
-import android.view.View;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -26,30 +25,43 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import java8.util.stream.StreamSupport;
 import nsbe.com.bankly.Bankly;
 import nsbe.com.bankly.BuildConfig;
 import nsbe.com.bankly.R;
 import nsbe.com.bankly.StatementRecyclerAdapter;
+import nsbe.com.bankly.model.CapitalPurchase;
 
 public class AnalyticsActivity extends AppCompatActivity {
 
     private StatementRecyclerAdapter adapter;
 
+    private double total_spent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analytics);
-        d();
-        Bankly.getService().getCustomer(BuildConfig.WILBERT)
+        Bankly.getService().getAccounts(BuildConfig.WILBERT)
                 .subscribeOn(Schedulers.io())
-                .flatMap(res -> Bankly.getService().getAccounts(res.getId()))
-                .observeOn(AndroidSchedulers.mainThread());
+                .flatMap(res -> Bankly.getService().getPurchases(res.get(0).get_id()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(res -> StreamSupport.stream(res).filter(filter -> !filter.getPurchase_date().startsWith("10")).map(CapitalPurchase::getAmount).forEach(detail -> total_spent += detail),
+                        error -> {
+                        }, () -> {
+                            AppCompatTextView text = findViewById(R.id.this_spent);
+                            text.setText(String.format(Locale.US, "$%.2f", total_spent));
+                            d();
+                        });
     }
+
     LineChart mChart = null;
-    public void d(){
+
+    public void d() {
         mChart = findViewById(R.id.chart);
         mChart.setOnChartGestureListener(new OnChartGestureListener() {
             @Override
@@ -154,8 +166,8 @@ public class AnalyticsActivity extends AppCompatActivity {
 
         YAxis leftAxis = mChart.getAxisLeft();
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
-      //  leftAxis.addLimitLine(ll1);
-       // leftAxis.addLimitLine(ll2);
+        //  leftAxis.addLimitLine(ll1);
+        // leftAxis.addLimitLine(ll2);
         leftAxis.setAxisMaximum(50000f);
         leftAxis.setAxisMinimum(0f);
         //leftAxis.setYOffset(20f);
@@ -194,15 +206,15 @@ public class AnalyticsActivity extends AppCompatActivity {
 
         ArrayList<Entry> values = new ArrayList<Entry>();
 
-        values.add(new Entry(0, 20000, getResources().getDrawable(R.drawable.ic_if_close)));
-        values.add(new Entry(1, 39000, getResources().getDrawable(R.drawable.ic_if_close)));
+        values.add(new Entry(0, 1750, getResources().getDrawable(R.drawable.ic_if_close)));
+        values.add(new Entry(1, (float) total_spent, getResources().getDrawable(R.drawable.ic_if_close)));
 
 
         LineDataSet set1;
 
         if (mChart.getData() != null &&
                 mChart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet)mChart.getData().getDataSetByIndex(0);
+            set1 = (LineDataSet) mChart.getData().getDataSetByIndex(0);
             set1.setValues(values);
             mChart.getData().notifyDataChanged();
             mChart.notifyDataSetChanged();
@@ -230,8 +242,7 @@ public class AnalyticsActivity extends AppCompatActivity {
                 // fill drawable only supported on api level 18 and above
                 Drawable drawable = ContextCompat.getDrawable(this, R.drawable.gradient);
                 set1.setFillDrawable(drawable);
-            }
-            else {
+            } else {
                 set1.setFillColor(Color.BLACK);
             }
 
