@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     account_id = res.get(0).get_id();
                     total_balance = res.get(0).getTotalBalance();
                 }, error -> {
-                }, this::b);
+                }, this::initializePie);
         Animator spruceAnimator = new Spruce
                 .SpruceBuilder((ViewGroup) findViewById(R.id.cardview).getParent())
                 .sortWith(new LinearSort(/*interObjectDelay=*/500L, /*reversed=*/false, LinearSort.Direction.TOP_TO_BOTTOM))
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
     PieChart mChart;
 
-    public void b() {
+    public void initializePie() {
         mChart = findViewById(R.id.bar_chart);
 
         mChart.setUsePercentValues(true);
