@@ -26,6 +26,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -56,7 +57,7 @@ public class AnalyticsActivity extends AppCompatActivity {
                         }, () -> {
                             AppCompatTextView text = findViewById(R.id.this_spent);
                             text.setText(String.format(Locale.US, "$%.2f", total_spent));
-                            d();
+                            initializeChart();
                         });
     }
 
@@ -73,7 +74,7 @@ public class AnalyticsActivity extends AppCompatActivity {
 
     LineChart mChart = null;
 
-    public void d() {
+    public void initializeChart() {
         mChart = findViewById(R.id.chart);
         mChart.setOnChartGestureListener(new OnChartGestureListener() {
             @Override
@@ -135,22 +136,12 @@ public class AnalyticsActivity extends AppCompatActivity {
         // enable touch gestures
         mChart.setTouchEnabled(true);
 
-        // enable scaling and dragging
         mChart.setDragEnabled(true);
         mChart.setScaleEnabled(true);
-        // mChart.setScaleXEnabled(true);
-        // mChart.setScaleYEnabled(true);
 
         // if disabled, scaling can be done on x- and y-axis separately
         mChart.setPinchZoom(true);
 
-        // set an alternative background color
-        // mChart.setBackgroundColor(Color.GRAY);
-
-        // create a custom MarkerView (extend MarkerView) and specify the layout
-        // to use for it
-
-        // x-axis limit line
         LimitLine llXAxis = new LimitLine(10f, "Index 10");
         llXAxis.setLineWidth(4f);
         llXAxis.enableDashedLine(10f, 10f, 0f);
@@ -159,30 +150,11 @@ public class AnalyticsActivity extends AppCompatActivity {
 
         XAxis xAxis = mChart.getXAxis();
         xAxis.enableGridDashedLine(10f, 10f, 0f);
-        //xAxis.setValueFormatter(new MyCustomXAxisValueFormatter());
-        //xAxis.addLimitLine(llXAxis); // add x-axis limit line
-
-
-/*
-        LimitLine ll1 = new LimitLine(150f, "Upper Limit");
-        ll1.setLineWidth(4f);
-        ll1.enableDashedLine(10f, 10f, 0f);
-        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
-        ll1.setTextSize(10f);
-
-        LimitLine ll2 = new LimitLine(-30f, "Lower Limit");
-        ll2.setLineWidth(4f);
-        ll2.enableDashedLine(10f, 10f, 0f);
-        ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
-        ll2.setTextSize(10f);*/
 
         YAxis leftAxis = mChart.getAxisLeft();
         leftAxis.removeAllLimitLines(); // reset all limit lines to avoid overlapping lines
-        //  leftAxis.addLimitLine(ll1);
-        // leftAxis.addLimitLine(ll2);
         leftAxis.setAxisMaximum(50000f);
         leftAxis.setAxisMinimum(0f);
-        //leftAxis.setYOffset(20f);
         leftAxis.enableGridDashedLine(10f, 10f, 0f);
         leftAxis.setDrawZeroLine(false);
 
@@ -191,15 +163,8 @@ public class AnalyticsActivity extends AppCompatActivity {
 
         mChart.getAxisRight().setEnabled(false);
 
-        //mChart.getViewPortHandler().setMaximumScaleY(2f);
-        //mChart.getViewPortHandler().setMaximumScaleX(2f);
-
         // add data
         setData(2, 50000);
-
-//        mChart.setVisibleXRange(20);
-//        mChart.setVisibleYRange(20f, AxisDependency.LEFT);
-//        mChart.centerViewTo(20, 50, AxisDependency.LEFT);
 
         mChart.animateX(2500);
         //mChart.invalidate();
@@ -258,7 +223,7 @@ public class AnalyticsActivity extends AppCompatActivity {
                 set1.setFillColor(Color.BLACK);
             }
 
-            ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
+            List<ILineDataSet> dataSets = new ArrayList<>();
             dataSets.add(set1); // add the datasets
 
             // create a data object with the datasets
